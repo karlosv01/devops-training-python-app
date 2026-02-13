@@ -1,20 +1,21 @@
 pipeline {
-agent {
+    agent {
         dockerfile {
             filename 'devops/ci.Dockerfile'
             dir '.' // Contexto en la raíz para que Docker acceda a todo
         }
     }
+
     stages {
-       stage('Test') {
-           
+        stage('Test') {
             steps {
                 sh 'pytest -q'
             }
         }
-         stage('Lint') {
-          
+
+        stage('Lint') {
             steps {
+                sh 'make help'
                 sh 'make lint'
             }
         }
