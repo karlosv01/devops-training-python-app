@@ -1,6 +1,7 @@
 pytest
 coverage
 black[jupyter]
-
+flake8
+mypy
 Flask
-psycopg2
+psycopg2-binary
