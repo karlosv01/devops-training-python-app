@@ -7,11 +7,10 @@ pipeline {
     agent any
 
     stages {
-        stage('Build image') {
+        stage('Build image based on ci.Dockerfile') {
             steps {
                 script { 
-                    docker.build('python-app:latest', '-f devops/ci.Dockerfile .')
-                    echo "Docker image built successfully: python-app:latest"
+                    docker.build('python-app:latest', '-f devops/ci.Dockerfile .')                    
                 }
             }
         }
@@ -28,6 +27,16 @@ pipeline {
             steps {
                 runInDocker('python-app:latest') {
                     sh 'make lint'
+                }
+            }
+        }
+        stage('Build image') {
+            steps {
+                script { 
+                   
+                    def image = docker.build('python-app:${BUILD_NUMBER}', '-f devops/Dockerfile .')
+                    echo "Image tag: python-app:${BUILD_NUMBER}"
+                    echo "Image ID: ${image.id}"
                 }
             }
         }
