@@ -16,14 +16,14 @@ pipeline {
                 script {
                     sh 'docker build -f devops/ci.Dockerfile -t python-app:latest .'
                     env.DOCKER_IMAGE = 'python-app:latest'
-                    echo "Docker image built: ${env.DOCKER_IMAGE}"
-                }
+println "Docker image built: ${env.DOCKER_IMAGE}"
+                    }
             }
         }
 
         stage('Test') {
             steps {
-                runInDocker(DOCKER_IMAGE) {
+                runInDocker(env.DOCKER_IMAGE) {
                     sh 'make test'
                 }
             }
@@ -31,7 +31,7 @@ pipeline {
 
         stage('Lint') {
             steps {
-                runInDocker(DOCKER_IMAGE) {
+                runInDocker(env.DOCKER_IMAGE) {
                     sh 'make lint'
                 }
             }
