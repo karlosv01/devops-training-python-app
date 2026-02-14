@@ -32,12 +32,14 @@ pipeline {
         }
         stage('Build image') {
             steps {
-                script { 
-                   
-                    def image = docker.build('python-app:${BUILD_NUMBER}', '-f devops/Dockerfile .')
-                    echo "Image tag: python-app:${BUILD_NUMBER}"
+                  script {
+                    def tag = env.BUILD_NUMBER ?: 'latest'
+                    def imageName = "python-app:${tag}"
+                    echo "Building Docker image: ${imageName}"
+                    def image = docker.build(imageName, '-f devops/Dockerfile .')
+                    echo "Built image tag: ${imageName}"
                     echo "Image ID: ${image.id}"
-                }
+    }
             }
         }
     }
