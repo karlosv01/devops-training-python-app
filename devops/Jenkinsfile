@@ -6,24 +6,10 @@ def runInDocker(String image, Closure body) {
 pipeline {
     agent any
 
-     environment {
-        DOCKER_IMAGE = ''
-    }
-
     stages {
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh 'docker build -f devops/ci.Dockerfile -t python-app:latest .'
-                    env.DOCKER_IMAGE = 'python-app:latest'
-println "Docker image built: ${env.DOCKER_IMAGE}"
-                    }
-            }
-        }
-
         stage('Test') {
             steps {
-                runInDocker(env.DOCKER_IMAGE) {
+                runInDocker('python:3.9-slim') {
                     sh 'make test'
                 }
             }
@@ -31,7 +17,7 @@ println "Docker image built: ${env.DOCKER_IMAGE}"
 
         stage('Lint') {
             steps {
-                runInDocker(env.DOCKER_IMAGE) {
+                runInDocker('python:3.9-slim') {
                     sh 'make lint'
                 }
             }
