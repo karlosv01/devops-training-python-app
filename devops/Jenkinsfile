@@ -7,17 +7,26 @@ pipeline {
     agent any
 
     stages {
+        stage('Build image') {
+            steps {
+                script { 
+                    docker.build('python-app:latest', '-f devops/ci.Dockerfile .')
+                    echo "Docker image built successfully: python-app:latest"
+                }
+            }
+        }
+
         stage('Test') {
             steps {
-                runInDocker('python:3.9-slim') {
-                    sh 'make test'
+                runInDocker('python-app:latest') {
+                    sh 'pytest -q'
                 }
             }
         }
 
         stage('Lint') {
             steps {
-                runInDocker('python:3.9-slim') {
+                runInDocker('python-app:latest') {
                     sh 'make lint'
                 }
             }
