@@ -1,21 +1,39 @@
+def runInDocker(String image, Closure body) {
+    docker.image(image).inside {
+        body()
+    }
+}
 pipeline {
-    agent {
-        dockerfile {
-            filename 'devops/ci.Dockerfile'
-            dir '.' // Contexto en la raíz para que Docker acceda a todo
-        }
+    agent any
+
+     environment {
+        DOCKER_IMAGE = ''
     }
 
     stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -f devops/ci.Dockerfile -t python-app:latest .'
+                    env.DOCKER_IMAGE = 'python-app:latest'
+                    echo "Docker image built: ${env.DOCKER_IMAGE}"
+                }
+            }
+        }
+
         stage('Test') {
             steps {
-                sh 'pytest -q'
+                runInDocker(DOCKER_IMAGE) {
+                    sh 'make test'
+                }
             }
         }
 
         stage('Lint') {
             steps {
-                 sh 'make lint'
+                runInDocker(DOCKER_IMAGE) {
+                    sh 'make lint'
+                }
             }
         }
     }
