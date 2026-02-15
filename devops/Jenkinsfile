@@ -3,7 +3,6 @@ def runInDocker(String image, Closure body) {
         body()
     }
 }
-/* groovylint-disable-next-line CompileStatic */
 pipeline {
     agent any
 
@@ -48,11 +47,11 @@ pipeline {
             steps {
                 script {
                     echo 'Ejecutando aplicación con docker-compose'
-                    sh 'docker-compose up -d'
+                    sh 'docker compose up -d'
                     echo 'Esperando a que la aplicación se inicie...'
                     sh 'sleep 5'
                     echo 'Mostrando logs de la aplicación:'
-                    sh 'docker-compose logs my-flask-app-dc'
+                    sh 'docker compose logs my-flask-app-dc'
                 }
             }
         }
