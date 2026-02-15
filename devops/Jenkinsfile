@@ -60,15 +60,19 @@ pipeline {
 
             steps {
                 script {
+                    /* groovylint-disable-next-line DuplicateStringLiteral */
+                    env.DEPLOY_ENV = (env.BRANCH_NAME == 'master') ? 'pro' : 'dev'
+                    echo "Deploying to ${env.DEPLOY_ENV}"
+
                     echo "CD habilitado: RUN_CD=${params.RUN_CD}, branch=${env.BRANCH_NAME}"
 
                     echo 'Ejecutando aplicación con docker-compose'
-                    sh 'docker compose up -d'
+                    sh "docker compose -p ${env.DEPLOY_ENV} up -d"
                     echo 'Esperando a que la aplicación se inicie...'
                     sh 'sleep 5'
                     echo 'Mostrando logs de la aplicación:'
-                    sh 'docker compose logs app'
-                }
+                    sh "docker compose -p ${env.DEPLOY_ENV} logs app"
+                    }
             }
         }
     }
