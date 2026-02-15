@@ -5,7 +5,9 @@ def runInDocker(String image, Closure body) {
 }
 pipeline {
     agent any
-
+    parameters {
+        booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
+    }
     stages {
         stage('Build image based on ci.Dockerfile') {
             steps {
@@ -44,8 +46,22 @@ pipeline {
         }
 
         stage('CD') {
+            when { //directiva when en Jenkins sirve para establecer condiciones, permitiendo ejecutar etapas solo si se cumplen ciertos criterios.
+
+//el step se ejecutara si return params.RUN_CD == true  or branch 'develop'  or  branch 'master'
+//if (RUN_CD == true  or branch 'develop'  or  branch 'master') then execute the steps
+
+                anyOf { // operador lógico OR. Se cumple si al menos una de las condiciones es verdadera.
+                    expression { return params.RUN_CD == true } //condición personalizada basada en un parámetro booleano RUN_CD definido en Jenkins. Si es true, se cumple esta condición.
+                    branch 'develop'
+                    branch 'master'
+                }
+            }
+
             steps {
                 script {
+                    echo "CD habilitado: RUN_CD=${params.RUN_CD}, branch=${env.BRANCH_NAME}"
+
                     echo 'Ejecutando aplicación con docker-compose'
                     sh 'docker compose up -d'
                     echo 'Esperando a que la aplicación se inicie...'
