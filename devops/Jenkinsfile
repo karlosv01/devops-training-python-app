@@ -51,7 +51,7 @@ pipeline {
                     echo 'Esperando a que la aplicación se inicie...'
                     sh 'sleep 5'
                     echo 'Mostrando logs de la aplicación:'
-                    sh 'docker compose logs my-flask-app-dc'
+                    sh 'docker compose logs app'
                 }
             }
         }
