@@ -94,7 +94,6 @@ pipeline {
         }
         failure {
             script {
-                echo "FAILURE showing logs to ${env.DEPLOY_ENV}"
                  sh 'docker compose logs || true'
             }
         }
