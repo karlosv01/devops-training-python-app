@@ -5,9 +5,9 @@ def runInDocker(String image, Closure body) {
 }
 pipeline {
     agent any
-    parameters {
-        booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
-    }
+   // parameters {
+    //    booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
+   // }
     stages {
         stage('Build image based on ci.Dockerfile') {
             steps {
