@@ -5,12 +5,13 @@ def runInDocker(String image, Closure body) {
 }
 pipeline {
     agent any
-    parameters {
+    parametersº {
         booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
     }
     environment {
         IMAGE_NAME = 'python-app:latest'
-        SLEEP = 5
+        SLEEP = 5,
+        DEPLOY_ENV = '' // Variable para almacenar el entorno de despliegue (dev o pro)
     }
     stages {
         stage('Build image based on ci.Dockerfile') {
@@ -51,12 +52,15 @@ pipeline {
         }
 
         stage('CD') {
+            /* groovylint-disable-next-line LineLength */
             when { //directiva when en Jenkins sirve para establecer condiciones, permitiendo ejecutar etapas solo si se cumplen ciertos criterios.
 
 //el step se ejecutara si return params.RUN_CD == true  or branch 'develop'  or  branch 'master'
 //if (RUN_CD == true  or branch 'develop'  or  branch 'master') then execute the steps
 
-                anyOf { // operador lógico OR. Se cumple si al menos una de las condiciones es verdadera.
+                anyOf {
+                    // operador lógico OR. Se cumple si al menos una de las condiciones es verdadera.
+                    /* groovylint-disable-next-line LineLength */
                     expression { return params.RUN_CD == true } //condición personalizada basada en un parámetro booleano RUN_CD definido en Jenkins. Si es true, se cumple esta condición.
                     branch 'develop'
                     branch 'master'
@@ -85,8 +89,19 @@ pipeline {
         always {
             script {
                 echo 'Deteniendo y eliminando contenedores, redes y volúmenes de docker-compose'
-                    sh 'docker compose down --volumes'
+                    sh 'docker compose down --volumes || true'
+                    sh "docker rmi ${env.IMAGE_NAME} || true"
             }
+        }
+        failure {
+            script {
+                echo "FAILURE showing logs to ${env.DEPLOY_ENV}"
+                 sh 'docker compose logs || true'
+            }
+        }
+
+        success {
+            echo 'SUCCESS.'
         }
     }
 }
