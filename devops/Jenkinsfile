@@ -5,12 +5,11 @@ def runInDocker(String image, Closure body) {
 }
 pipeline {
     agent any
-    parametersº {
+    parameters {
         booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
     }
     environment {
         IMAGE_NAME = 'python-app:latest'
-        SLEEP = 5,
         DEPLOY_ENV = '' // Variable para almacenar el entorno de despliegue (dev o pro)
     }
     stages {
@@ -78,7 +77,7 @@ pipeline {
                     echo 'Ejecutando aplicación con docker-compose'
                     sh "docker compose -p ${env.DEPLOY_ENV} up -d"
                     echo 'Esperando a que la aplicación se inicie...'
-                    sh "sleep ${env.SLEEP}"
+                    sh "sleep 5"
                     echo 'Mostrando logs de la aplicación:'
                     sh "docker compose -p ${env.DEPLOY_ENV} logs app"
                 }
