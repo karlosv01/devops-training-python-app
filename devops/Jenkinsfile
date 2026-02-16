@@ -5,21 +5,26 @@ def runInDocker(String image, Closure body) {
 }
 pipeline {
     agent any
-   // parameters {
-    //    booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
-   // }
+    parameters {
+        booleanParam(name: 'RUN_CD', defaultValue: false, description: 'Marcar para forzar el despliegue (CD)')
+    }
+    environment {
+        IMAGE_NAME = 'python-app:latest'
+        SLEEP = 5
+    }
     stages {
         stage('Build image based on ci.Dockerfile') {
             steps {
                 script {
-                    docker.build('python-app:latest', '-f devops/ci.Dockerfile .')
+                    echo "Building Docker image: ${env.IMAGE_NAME} using ci.Dockerfile"
+                    docker.build(env.IMAGE_NAME, '-f devops/ci.Dockerfile .')
                 }
             }
         }
 
         stage('Test') {
             steps {
-                runInDocker('python-app:latest') {
+                runInDocker(env.IMAGE_NAME) {
                     sh 'pytest -q'
                 }
             }
@@ -27,7 +32,7 @@ pipeline {
 
         stage('Lint') {
             steps {
-                runInDocker('python-app:latest') {
+                runInDocker(env.IMAGE_NAME) {
                     sh 'make lint'
                 }
             }
@@ -69,10 +74,10 @@ pipeline {
                     echo 'Ejecutando aplicación con docker-compose'
                     sh "docker compose -p ${env.DEPLOY_ENV} up -d"
                     echo 'Esperando a que la aplicación se inicie...'
-                    sh 'sleep 5'
+                    sh "sleep ${env.SLEEP}"
                     echo 'Mostrando logs de la aplicación:'
                     sh "docker compose -p ${env.DEPLOY_ENV} logs app"
-                    }
+                }
             }
         }
     }
