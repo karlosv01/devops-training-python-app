@@ -10,7 +10,7 @@ pipeline {
     }
     environment {
         IMAGE_NAME = 'python-app:latest'
-        DEPLOY_ENV = '' // Variable para almacenar el entorno de despliegue (dev o pro)
+      
     }
     stages {
         stage('Build image based on ci.Dockerfile') {
